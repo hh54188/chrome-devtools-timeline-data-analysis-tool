@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="backgrid/backgrid.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.min.css">
+    <!-- ASSETS -->
+    <script type="text/javascript" src="js/assets/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="js/assets/underscore-min.js"></script>
+    <script type="text/javascript" src="js/assets/backbone-min.js"></script>
+    <!-- BACKGRID -->
+    <script type="text/javascript" src="backgrid/backgrid.js"></script>
+    <!-- APP -->
+    <script type="text/javascript" src="js/data.js"></script>
+    <script type="text/javascript" src="js/filter.js"></script>
+    <script type="text/javascript" src="js/grid.js"></script>    
+</head>
+<body>
+    <div class="container">
+        <h1>Chrome devtools Timeline Data Analysis Tool</h1>
+        <hr>
+        <div id="drop_zone">Drop TimelineRawData.json file here</div>
+        <div class="backgrid-container"></div>
+    </div>
+    <script type="text/javascript">
+
+    var data = {};
+
+    function resolveFile(dataArr) {
+        
+        if (typeof dataArr[0] == "string") {
+            dataArr.splice(0, 1);
+        }
+
+        (function _resolve(arr) {
+            var _data;
+
+            arr.forEach(function (item) {
+
+                if (item.type) {
+
+                    if (!(_data = data[item.type])) {
+                        data[item.type] = new Data();
+                    } else {
+                        _data.add(item);
+                    }
+                }
+
+                if (item.children && item.children.length) {
+                    _resolve(item.children);
+                }
+            });
+
+        })(dataArr);
+
+        console.log(data);
+
+        var d = Filter.bySpecifyProper(data.EvaluateScript.sorted_data, [
+            "totalTime",
+            "data_url",
+            "data_lineNumber"
+        ]);
+
+        // var grid = new Grid(d);
+    }
+
+    function readFile(file) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var result = e.target.result;
+            try {
+                resolveFile(JSON.parse(result));
+            } catch(err) {
+                console.log(err);
+            }
+            
+        };
+
+        reader.readAsText(file);
+    }
+
+    function handleDragOver(evt) {
+
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        evt.dataTransfer.dropEffect = 'copy';
+    }    
+
+    function handleFileSelect(evt) {
+        evt.stopPropagation();
+        evt.preventDefault();
+
+        var files = evt.target.files || evt.dataTransfer.files;
+        var output = [];
+
+        for (var i = 0, f; f = files[i]; i++) {
+            readFile(f);
+        }
+    }
+
+
+    var dropZone = document.getElementById('drop_zone');
+    dropZone.addEventListener('dragover', handleDragOver, false);
+    dropZone.addEventListener('drop', handleFileSelect, false);
+
+    </script>
+</body>
+</html>
