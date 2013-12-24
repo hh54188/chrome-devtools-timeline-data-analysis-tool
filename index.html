@@ -20,10 +20,27 @@
     </div>
     <script type="text/javascript">
 
-    var data = {};
+    var DataByCategory = {};
+    var DataByScript = {};
+    var endTimeStack = [];
+    var urlStack = [];
+
+    function testIfHaveURL(data) {
+
+        for (var key in data) {
+            console.log("CATEGORY------>", key);
+            var d = data[key].sorted_data;
+
+            d.forEach(function (item) {
+                if (item.data && (item.data.url || item.data.uri)) {
+                    console.dir(item.data);
+                }
+            })
+        }
+    }
 
     function resolveFile(dataArr) {
-        
+        console.log("Origin Data----->", dataArr);
         if (typeof dataArr[0] == "string") {
             dataArr.splice(0, 1);
         }
@@ -33,10 +50,22 @@
 
             arr.forEach(function (item) {
 
+                if (item.endTime) {
+                    endTimeStack.push(item.endTime);
+                } else {
+                    item.parentEndTime = endTimeStack[endTimeStack.length - 1];
+                }
+
+                if (item.data.url) {
+                    urlStack.push(item.data.url);
+                } else {
+                    item.data.url = urlStack[urlStack.length - 1];
+                }
+
                 if (item.type) {
 
-                    if (!(_data = data[item.type])) {
-                        data[item.type] = new Data();
+                    if (!(_data = DataByCategory[item.type])) {
+                        DataByCategory[item.type] = new Data();
                     } else {
                         _data.add(item);
                     }
@@ -45,20 +74,21 @@
                 if (item.children && item.children.length) {
                     _resolve(item.children);
                 }
+
+
+                if (item.data.url) {
+                    urlStack.pop();
+                }
+
+                if (item.endTime) {
+                    endTimeStack.pop();
+                }
             });
 
         })(dataArr);
 
-        console.log("Category data------>", data);
-
-        var d = Filter.bySpecifyProper(data.EvaluateScript.sorted_data, [
-            "totalTime", "data_url", "data_lineNumber"
-        ]);
-        
-        var table = new Grid(d);
-        var container = document.querySelector("#backgrid-container");
-
-        container.appendChild(table);
+        // console.log("DataByCategory------>", DataByCategory);
+        testIfHaveURL(DataByCategory);
     }
 
     function readFile(file) {

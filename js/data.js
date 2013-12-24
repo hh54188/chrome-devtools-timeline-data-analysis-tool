@@ -7,8 +7,10 @@ function Data() {
 
 Data.prototype.add = function (item) {
 
-    if (item.endTime && item.startTime) {
-        item.totalTime = item.endTime - item.startTime;
+    if ((item.endTime || item.parentEndTime) && item.startTime) {
+        
+        var _endTime =  item.endTime || item.parentEndTime;
+        item.totalTime = _endTime - item.startTime;
     }
 
     this.count++;
