@@ -1,17 +1,45 @@
-function Grid(columns, data, container_selector) {
+function Grid(dataArr) {
+    var max = 100;
+    this.createTable();
+    var _this = this;
+    dataArr.forEach(function (data) {
 
-    var Data = Backbone.Model.extend({});
+        var row = _this.insertRow();
 
-    var Set = Backbone.Collection.extend({
-        model: Data
+        _this.insertCol(row, data.totalTime);
+        _this.insertCol(row, data.url);
+        _this.insertCol(row, data.lineNumber);
+
+        if (!(--max)) return false;
     });
 
-    var set = new Set(data);
+    return this.table;
+}
 
-    var grid = new Backgrid.Grid({
-        columns: columns,
-        collection: set
-    });
+Grid.prototype.createTable = function () {
+    var table = document.createElement("table");
+    var tbody = document.createElement("tbody");
+    var thead = document.createElement("thead");
 
-    $(container_selector).append(grid.render().$el);
+    table.appendChild(tbody);
+    table.appendChild(thead);
+
+    table.classList.add("table");
+    table.classList.add("table-bordered");
+
+    this.table = table;
+    this.tbody = tbody;
+    this.thead = thead;
+}
+
+Grid.prototype.insertRow = function () {
+    var row = document.createElement("tr");
+    this.tbody.appendChild(row);
+    return row;
+}
+
+Grid.prototype.insertCol = function (row, val) {
+    var col = document.createElement("td");
+    col.innerHTML = val;
+    row.appendChild(col);
 }

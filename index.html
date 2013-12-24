@@ -2,16 +2,10 @@
 <html>
 <head>
     <title></title>
-    <link rel="stylesheet" type="text/css" href="backgrid/backgrid.css">
+    <!-- Style -->
     <link rel="stylesheet" type="text/css" href="css/style.css">
-    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.min.css">
-    <!-- ASSETS -->
-    <script type="text/javascript" src="js/assets/jquery-1.9.1.min.js"></script>
-    <script type="text/javascript" src="js/assets/underscore-min.js"></script>
-    <script type="text/javascript" src="js/assets/backbone-min.js"></script>
-    <!-- BACKGRID -->
-    <script type="text/javascript" src="backgrid/backgrid.js"></script>
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
     <!-- APP -->
     <script type="text/javascript" src="js/data.js"></script>
     <script type="text/javascript" src="js/filter.js"></script>
@@ -22,7 +16,7 @@
         <h1>Chrome devtools Timeline Data Analysis Tool</h1>
         <hr>
         <div id="drop_zone">Drop TimelineRawData.json file here</div>
-        <div class="backgrid-container"></div>
+        <div id="backgrid-container"></div>
     </div>
     <script type="text/javascript">
 
@@ -55,15 +49,16 @@
 
         })(dataArr);
 
-        console.log(data);
+        console.log("Category data------>", data);
 
         var d = Filter.bySpecifyProper(data.EvaluateScript.sorted_data, [
-            "totalTime",
-            "data_url",
-            "data_lineNumber"
+            "totalTime", "data_url", "data_lineNumber"
         ]);
+        
+        var table = new Grid(d);
+        var container = document.querySelector("#backgrid-container");
 
-        // var grid = new Grid(d);
+        container.appendChild(table);
     }
 
     function readFile(file) {
