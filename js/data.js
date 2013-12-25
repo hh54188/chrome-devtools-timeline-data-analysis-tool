@@ -1,3 +1,5 @@
+// CATEGORY DATA CLASS
+
 function Data() {
     this.count = 0;
     this.total_cost = 0;
@@ -7,10 +9,8 @@ function Data() {
 
 Data.prototype.add = function (item) {
 
-    if ((item.endTime || item.parentEndTime) && item.startTime) {
-        
-        var _endTime =  item.endTime || item.parentEndTime;
-        item.totalTime = _endTime - item.startTime;
+    if (item.endTime && item.startTime) {
+        item.totalTime = item.endTime - item.startTime;
     }
 
     this.count++;

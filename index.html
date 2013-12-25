@@ -19,28 +19,46 @@
         <div id="backgrid-container"></div>
     </div>
     <script type="text/javascript">
-
+    var Data 
     var DataByCategory = {};
-    var DataByScript = {};
+    var DataByUrl = {};
+
     var endTimeStack = [];
     var urlStack = [];
 
-    function testIfHaveURL(data) {
-
-        for (var key in data) {
-            console.log("CATEGORY------>", key);
-            var d = data[key].sorted_data;
-
-            d.forEach(function (item) {
-                if (item.data && (item.data.url || item.data.uri)) {
-                    console.dir(item.data);
-                }
-            })
+    function sortCategoryByTimecost(data) {
+        var toArray = [], result = [];
+        for (var name in data) {
+            toArray.push({
+                type: name,
+                data: data[name]
+            });
         }
+
+        toArray.forEach(function (item) {
+
+            result.push(item);
+            if (result.length == 1 ) return;
+
+            var cur = result.length - 1, prev = cur - 1;
+            var temp;
+
+            while (result[cur].data.total_cost > result[prev].data.total_cost) {
+
+                temp = result[prev];
+                result[prev] = result[cur];
+                result[cur] = temp;
+
+                prev = (--cur) - 1;
+                if (prev < 0) return;
+            }
+        });
+
+        return result;
     }
 
     function resolveFile(dataArr) {
-        console.log("Origin Data----->", dataArr);
+
         if (typeof dataArr[0] == "string") {
             dataArr.splice(0, 1);
         }
@@ -50,20 +68,19 @@
 
             arr.forEach(function (item) {
 
-                if (item.endTime) {
-                    endTimeStack.push(item.endTime);
-                } else {
-                    item.parentEndTime = endTimeStack[endTimeStack.length - 1];
+                if (!item.endTime) {
+                    item.endTime = endTimeStack[endTimeStack.length - 1];
                 }
+                endTimeStack.push(item.endTime);
 
-                if (item.data.url) {
-                    urlStack.push(item.data.url);
-                } else {
+
+                if (!item.data.url) {
                     item.data.url = urlStack[urlStack.length - 1];
                 }
+                urlStack.push(item.data.url);
 
+                // Category by type(Layout, parseHtml, etc)
                 if (item.type) {
-
                     if (!(_data = DataByCategory[item.type])) {
                         DataByCategory[item.type] = new Data();
                     } else {
@@ -71,24 +88,36 @@
                     }
                 }
 
+                // Category by url
+                if (item.data.url) {
+                    if (!(_data = DataByUrl[item.data.url])) {
+                        DataByUrl[item.data.url] = new Data();
+                    } else {
+                        _data.add(item);
+                    }
+                } else {
+
+                    if (!DataByUrl["without"]) DataByUrl["without"] = new Data();
+                    DataByUrl["without"].add(item);
+                }
+
                 if (item.children && item.children.length) {
                     _resolve(item.children);
                 }
 
-
-                if (item.data.url) {
-                    urlStack.pop();
-                }
-
-                if (item.endTime) {
-                    endTimeStack.pop();
-                }
+                urlStack.pop();
+                endTimeStack.pop();
             });
 
         })(dataArr);
 
-        // console.log("DataByCategory------>", DataByCategory);
-        testIfHaveURL(DataByCategory);
+        /*---------------RESOLVE COMPLETE------------*/
+
+        // var sortArr = sortCategoryByTimecost(DataByCategory);
+        var sortArr = sortCategoryByTimecost(DataByUrl);
+        sortArr.forEach(function (item) {
+            console.log(item.type, item.data.total_cost);
+        })
     }
 
     function readFile(file) {
