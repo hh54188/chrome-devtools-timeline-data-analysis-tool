@@ -113,11 +113,13 @@
 
         /*---------------RESOLVE COMPLETE------------*/
 
+        console.log(sortCategoryByTimecost(DataByCategory));
+        console.log(sortCategoryByTimecost(DataByUrl));
         // var sortArr = sortCategoryByTimecost(DataByCategory);
-        var sortArr = sortCategoryByTimecost(DataByUrl);
-        sortArr.forEach(function (item) {
-            console.log(item.type, item.data.total_cost);
-        })
+        // var sortArr = sortCategoryByTimecost(DataByUrl);
+        // sortArr.forEach(function (item) {
+        //     console.log(item.type, item.data.total_cost);
+        // })
     }
 
     function readFile(file) {
