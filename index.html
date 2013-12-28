@@ -23,9 +23,6 @@
     var DataByCategory = {};
     var DataByUrl = {};
 
-    var endTimeStack = [];
-    var urlStack = [];
-
     function sortCategoryByTimecost(data) {
         var toArray = [], result = [];
         for (var name in data) {
@@ -68,19 +65,17 @@
 
             arr.forEach(function (item) {
 
-                if (!item.endTime) {
-                    item.endTime = endTimeStack[endTimeStack.length - 1];
-                }
-                endTimeStack.push(item.endTime);
+                if (item.type.toLowerCase() == "program") {
 
-
-                if (!item.data.url) {
-                    item.data.url = urlStack[urlStack.length - 1];
+                    if (item.children && item.children.length) {
+                        _resolve(item.children);
+                    }
+                    return
                 }
-                urlStack.push(item.data.url);
 
                 // Category by type(Layout, parseHtml, etc)
                 if (item.type) {
+
                     if (!(_data = DataByCategory[item.type])) {
                         DataByCategory[item.type] = new Data();
                     } else {
@@ -101,18 +96,13 @@
                     DataByUrl["without"].add(item);
                 }
 
-                if (item.children && item.children.length) {
-                    _resolve(item.children);
-                }
-
-                urlStack.pop();
-                endTimeStack.pop();
             });
 
         })(dataArr);
 
         /*---------------RESOLVE COMPLETE------------*/
 
+        console.log(DataByCategory);
         console.log(sortCategoryByTimecost(DataByCategory));
         console.log(sortCategoryByTimecost(DataByUrl));
         // var sortArr = sortCategoryByTimecost(DataByCategory);
