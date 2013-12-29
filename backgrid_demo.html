@@ -5,11 +5,12 @@
 
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" type="text/css" href="backgrid/backgrid.css">
+    <link rel="stylesheet" type="text/css" href="backgrid/backgrid.min.css">
     <link rel="stylesheet" type="text/css" href="backgrid/filter/backgrid-filter.min.css">
     <link rel="stylesheet" type="text/css" href="backgrid/paginator/backgrid-paginator.min.css">
 
     <script type="text/javascript" src="js/assets/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/assets/underscore-min.js"></script>
     <script type="text/javascript" src="js/assets/backbone-min.js"></script>
     <script type="text/javascript" src="backgrid/backgrid.min.js"></script>
@@ -77,7 +78,7 @@
     var PageableTerritories = Backbone.PageableCollection.extend({
         model: Territory,
         state: {
-            pageSize: 2
+            pageSize: 4
         },
         mode: "client"
     });
@@ -94,21 +95,25 @@
 
     /*page*/
 
-    // var paginator = new Backgrid.Extension.Paginator({
-    //     collection: pageableTerritories
-    // });
+    var paginator = new Backgrid.Extension.Paginator({
+        fastForwardHandleLabels: {
+            prev: "pppp",
+            next: "ccc"
+        },
+        collection: pageableTerritories
+    });
 
-    // $("#result").append(paginator.render().$el);
+    $("#result").append(paginator.render().$el);
 
-    // var filter = new Backgrid.Extension.ClientSideFilter({
-    //     collection: pageableTerritories.fullCollection,
-    //     fields: ['name']
-    // });
+    var filter = new Backgrid.Extension.ClientSideFilter({
+        collection: pageableTerritories.fullCollection,
+        fields: ['name']
+    });
 
-    // $("#result").prepend(filter.render().$el);
+    $("#result").prepend(filter.render().$el);
 
     // Add some space to the filter and move it to the right
-    // filter.$el.css({float: "right", margin: "20px"});   
+    filter.$el.css({float: "right", margin: "20px"});   
 
     </script>
 </body>
