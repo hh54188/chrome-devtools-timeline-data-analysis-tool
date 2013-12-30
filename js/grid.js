@@ -1,45 +1,61 @@
-function Grid(dataArr) {
-    var max = 100;
-    this.createTable();
-    var _this = this;
-    dataArr.forEach(function (data) {
+var Grid = (function () {
 
-        var row = _this.insertRow();
+    var Data = Backbone.Model.extend({});
 
-        _this.insertCol(row, data.totalTime);
-        _this.insertCol(row, data.url);
-        _this.insertCol(row, data.lineNumber);
-
-        if (!(--max)) return false;
+    var Set = Backbone.PageableCollection.extend({
+        model: Data,
+        state: {
+            pageSize: 10
+        },
+        mode: "client"
     });
 
-    return this.table;
-}
+    // var columns = [{
+    //     name: "name",
+    //     label: "Name",
+    //     cell: "string"
+    // }, {
+    //     name: "age",
+    //     label: "Age",
+    //     cell: "string"
+    // }];
 
-Grid.prototype.createTable = function () {
-    var table = document.createElement("table");
-    var tbody = document.createElement("tbody");
-    var thead = document.createElement("thead");
+    var create = function (container, columns, data) {
 
-    table.appendChild(tbody);
-    table.appendChild(thead);
+        container.empty();
 
-    table.classList.add("table");
-    table.classList.add("table-bordered");
+        var set = new Set(data);
 
-    this.table = table;
-    this.tbody = tbody;
-    this.thead = thead;
-}
+        var pageableGrid = new Backgrid.Grid({
+            columns: columns,
+            collection: set
+        });
 
-Grid.prototype.insertRow = function () {
-    var row = document.createElement("tr");
-    this.tbody.appendChild(row);
-    return row;
-}
+        container.append(pageableGrid.render().$el);
 
-Grid.prototype.insertCol = function (row, val) {
-    var col = document.createElement("td");
-    col.innerHTML = val;
-    row.appendChild(col);
-}
+        /*pager*/
+
+        var paginator = new Backgrid.Extension.Paginator({
+
+            collection: set
+        });
+
+        container.append(paginator.render().$el);
+
+        /*filter*/
+
+        var filter = new Backgrid.Extension.ClientSideFilter({
+            collection: set.fullCollection
+        });
+
+        container.prepend(filter.render().$el);
+
+        // Add some space to the filter and move it to the right
+        filter.$el.css({float: "right", margin: "10px"});   
+    }
+
+    return {
+        create: create
+    }
+
+})()

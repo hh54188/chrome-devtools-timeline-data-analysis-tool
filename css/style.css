@@ -9,7 +9,7 @@
     color: #bbb;
 }
 
-.backgrid-container {
+#backgrid-container {
     margin-top: 50px;
 	position: relative;
 	display: block;

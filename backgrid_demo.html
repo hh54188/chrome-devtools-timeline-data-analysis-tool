@@ -108,8 +108,7 @@
     $("#result").append(paginator.render().$el);
 
     var filter = new Backgrid.Extension.ClientSideFilter({
-        collection: pageableTerritories.fullCollection,
-        fields: ['name']
+        collection: pageableTerritories.fullCollection
     });
 
     $("#result").prepend(filter.render().$el);

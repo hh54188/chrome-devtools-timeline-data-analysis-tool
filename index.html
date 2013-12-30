@@ -2,10 +2,24 @@
 <html>
 <head>
     <title></title>
-    <!-- Style -->
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.min.css">
     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" type="text/css" href="backgrid/backgrid.min.css">
+    <link rel="stylesheet" type="text/css" href="backgrid/filter/backgrid-filter.min.css">
+    <link rel="stylesheet" type="text/css" href="backgrid/paginator/backgrid-paginator.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+
+    <script type="text/javascript" src="js/assets/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/assets/underscore-min.js"></script>
+    <script type="text/javascript" src="js/assets/backbone-min.js"></script>
+    <script type="text/javascript" src="backgrid/backgrid.min.js"></script>
+
+    <script type="text/javascript" src="backgrid/filter/lunr.min.js"></script>
+    <script type="text/javascript" src="backgrid/filter/backgrid-filter.min.js"></script>
+
+    <script type="text/javascript" src="backgrid/paginator/backbone-pageable.min.js"></script>
+    <script type="text/javascript" src="backgrid/paginator/backgrid-paginator.min.js"></script>
     <!-- APP -->
     <script type="text/javascript" src="js/data.js"></script>
     <script type="text/javascript" src="js/filter.js"></script>
@@ -19,109 +33,36 @@
         <div id="backgrid-container"></div>
     </div>
     <script type="text/javascript">
-    var Data 
-    var DataByCategory = {};
-    var DataByUrl = {};
-
-    function sortCategoryByTimecost(data) {
-        var toArray = [], result = [];
-        for (var name in data) {
-            toArray.push({
-                type: name,
-                data: data[name]
-            });
-        }
-
-        toArray.forEach(function (item) {
-
-            result.push(item);
-            if (result.length == 1 ) return;
-
-            var cur = result.length - 1, prev = cur - 1;
-            var temp;
-
-            while (result[cur].data.total_cost > result[prev].data.total_cost) {
-
-                temp = result[prev];
-                result[prev] = result[cur];
-                result[cur] = temp;
-
-                prev = (--cur) - 1;
-                if (prev < 0) return;
-            }
-        });
-
-        return result;
-    }
-
-    function resolveFile(dataArr) {
-
-        if (typeof dataArr[0] == "string") {
-            dataArr.splice(0, 1);
-        }
-
-        (function _resolve(arr) {
-            var _data;
-
-            arr.forEach(function (item) {
-
-                if (item.type.toLowerCase() == "program") {
-
-                    if (item.children && item.children.length) {
-                        _resolve(item.children);
-                    }
-                    return
-                }
-
-                // Category by type(Layout, parseHtml, etc)
-                if (item.type) {
-
-                    if (!(_data = DataByCategory[item.type])) {
-                        DataByCategory[item.type] = new Data();
-                    } else {
-                        _data.add(item);
-                    }
-                }
-
-                // Category by url
-                if (item.data.url) {
-                    if (!(_data = DataByUrl[item.data.url])) {
-                        DataByUrl[item.data.url] = new Data();
-                    } else {
-                        _data.add(item);
-                    }
-                } else {
-
-                    if (!DataByUrl["without"]) DataByUrl["without"] = new Data();
-                    DataByUrl["without"].add(item);
-                }
-
-            });
-
-        })(dataArr);
-
-        /*---------------RESOLVE COMPLETE------------*/
-
-        console.log(DataByCategory);
-        console.log("DataByCategory--->", sortCategoryByTimecost(DataByCategory));
-        console.log("DataByUrl--->", sortCategoryByTimecost(DataByUrl));
-        // var sortArr = sortCategoryByTimecost(DataByCategory);
-        // var sortArr = sortCategoryByTimecost(DataByUrl);
-        // sortArr.forEach(function (item) {
-        //     console.log(item.type, item.data.total_cost);
-        // })
-    }
 
     function readFile(file) {
         var reader = new FileReader();
         reader.onload = function(e) {
             var result = e.target.result;
-            try {
-                resolveFile(JSON.parse(result));
-            } catch(err) {
-                console.log(err);
-            }
-            
+
+            Filter.cache(JSON.parse(result));
+
+            var data = Filter.bySpecifyProper(Filter.getByCategory(), [
+                "type",
+                "data:total_cost",
+                "data:average_cost"
+            ]);
+
+            Grid.create($("#backgrid-container"), [{
+                name: "type",
+                label: "Type",
+                cell: "string",
+                editable: false
+            }, {
+                name: "total_cost",
+                label: "Total cost",
+                cell: "string",
+                editable: false
+            }, {
+                name: "average_cost",
+                label: "Average cost",
+                cell: "string",
+                editable: false                
+            }], data);
         };
 
         reader.readAsText(file);
