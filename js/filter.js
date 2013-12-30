@@ -37,7 +37,17 @@ var Filter = (function () {
         })(_data);
     }
 
+    var isEmptyObject = function (obj) {
+
+    	for (var key in obj) {
+    		return false;
+    	}
+    	return true;
+    }
+
 	var getByCategory = function (item) {
+
+		if (!isEmptyObject(DataByCategory)) return DataByCategory;
 
 		resolveFile(function (item) {
 			var data;

@@ -8,22 +8,23 @@
     <link rel="stylesheet" type="text/css" href="backgrid/filter/backgrid-filter.min.css">
     <link rel="stylesheet" type="text/css" href="backgrid/paginator/backgrid-paginator.min.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
-
+    <!-- Lib -->
     <script type="text/javascript" src="js/assets/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="js/assets/underscore-min.js"></script>
     <script type="text/javascript" src="js/assets/backbone-min.js"></script>
     <script type="text/javascript" src="backgrid/backgrid.min.js"></script>
-
+    <!-- Filter -->
     <script type="text/javascript" src="backgrid/filter/lunr.min.js"></script>
     <script type="text/javascript" src="backgrid/filter/backgrid-filter.min.js"></script>
-
+    <!-- Page -->
     <script type="text/javascript" src="backgrid/paginator/backbone-pageable.min.js"></script>
     <script type="text/javascript" src="backgrid/paginator/backgrid-paginator.min.js"></script>
-    <!-- APP -->
+    <!-- App -->
     <script type="text/javascript" src="js/data.js"></script>
     <script type="text/javascript" src="js/filter.js"></script>
     <script type="text/javascript" src="js/grid.js"></script>    
+    <script type="text/javascript" src="js/router.js"></script>    
 </head>
 <body>
     <div class="container">
@@ -34,35 +35,56 @@
     </div>
     <script type="text/javascript">
 
+    function displayCategory(result) {
+
+        Filter.cache(JSON.parse(result));
+
+        var data = Filter.bySpecifyProper(Filter.getByCategory(), [
+            "type",
+            "data:total_cost",
+            "data:average_cost"
+        ]);
+
+        data.forEach(function (item) {
+            item.type = "#category/" + item.type;
+        })
+
+        Grid.create($("#backgrid-container"), [{
+            name: "type",
+            label: "Type",
+            cell: Backgrid.UriCell.extend({
+                render: function() {
+                    // // Default
+                    // Backgrid.UriCell.prototype.render.call(this);
+
+                    var td = this.$el;
+                    var type = this.model.attributes.type
+                    var link = $('<a target="_self" href="' + type + '">' + type.split("/")[1] + '</a>');
+
+                    td.append(link);
+                    return this;
+                }
+            }),
+            editable: false,
+
+        }, {
+            name: "total_cost",
+            label: "Total cost",
+            cell: "string",
+            editable: false
+        }, {
+            name: "average_cost",
+            label: "Average cost",
+            cell: "string",
+            editable: false                
+        }], data);
+    }
+
     function readFile(file) {
         var reader = new FileReader();
         reader.onload = function(e) {
             var result = e.target.result;
-
-            Filter.cache(JSON.parse(result));
-
-            var data = Filter.bySpecifyProper(Filter.getByCategory(), [
-                "type",
-                "data:total_cost",
-                "data:average_cost"
-            ]);
-
-            Grid.create($("#backgrid-container"), [{
-                name: "type",
-                label: "Type",
-                cell: "string",
-                editable: false
-            }, {
-                name: "total_cost",
-                label: "Total cost",
-                cell: "string",
-                editable: false
-            }, {
-                name: "average_cost",
-                label: "Average cost",
-                cell: "string",
-                editable: false                
-            }], data);
+            displayCategory(result);
         };
 
         reader.readAsText(file);
