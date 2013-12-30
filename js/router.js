@@ -8,7 +8,8 @@ var app_router = new AppRouter;
 
 app_router.on('route:getCategoryDetail', function (name) {
     var data = Filter.getByCategory();
-    console.log(data[name]);
+    // console.log(data[name]);
+    Filter.resolveChildren(data[name].sorted_data);
 });
 
 
